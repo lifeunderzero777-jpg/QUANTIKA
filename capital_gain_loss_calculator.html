@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capital Gain/Loss Calculator - Quantika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js CDN for 3D graphics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Chart.js for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+    }
+
+    .container-card {
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .input-field {
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Style for the video background */
+    #video-bg {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -100;
+      background-size: cover;
+    }
+
+    /* Dark overlay for better text readability */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -90;
+    }
+
+    /* 3D canvas for the butterfly */
+    #three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -95;
+      /* Behind the overlay, in front of the video */
+      display: block;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <!-- Video Background -->
+  <video autoplay muted loop id="video-bg">
+    <source src="video.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <!-- 3D Canvas -->
+  <canvas id="three-canvas"></canvas>
+  <!-- Dark overlay for better text readability -->
+  <div class="fixed inset-0 bg-black bg-opacity-70 z-0"></div>
+
+  <!-- Main content container -->
+  <div class="container-card w-full max-w-xl mx-auto rounded-3xl shadow-2xl p-6 sm:p-10 relative z-10 text-white">
+
+    <!-- Header with logo and back button -->
+    <div class="flex items-center justify-between mb-8">
+      <a href="index.html" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300">
+        <img src="relogo.png" alt="Quantika Logo" class="w-8 h-8 rounded-full border border-gray-300">
+        <span class="font-bold text-xl ml-2">Quantika</span>
+      </a>
+      <a href="index.html" class="text-white hover:underline">
+        &larr; Back to Calculators
+      </a>
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">Capital Gain/Loss Calculator</h1>
+    <p class="text-center text-gray-200 mb-8">Calculate gains or losses from selling a partner's share or an asset.</p>
+
+    <!-- Calculator Inputs -->
+    <div class="space-y-6 mb-8">
+      <div id="currency-buttons" class="flex justify-center space-x-4 mb-4">
+        <button id="usdBtn"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors duration-300">
+          $ (USD)
+        </button>
+        <button id="inrBtn"
+          class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors duration-300">
+          ₹ (INR)
+        </button>
+      </div>
+
+      <div>
+        <label for="salePrice" class="block text-gray-200 font-medium mb-2">Sale Price</label>
+        <input type="number" id="salePrice" placeholder="e.g., 120000"
+          class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+      </div>
+
+      <div>
+        <label for="costBasis" class="block text-gray-200 font-medium mb-2">Cost Basis</label>
+        <input type="number" id="costBasis" placeholder="e.g., 100000"
+          class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+      </div>
+
+      <div>
+        <label for="transactionCosts" class="block text-gray-200 font-medium mb-2">Transaction Costs (e.g., fees,
+          commissions)</label>
+        <input type="number" id="transactionCosts" placeholder="e.g., 500"
+          class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+      </div>
+
+      <button id="calculateBtn"
+        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors duration-300">
+        Calculate Gain/Loss
+      </button>
+
+      <div id="error-message" class="text-red-400 text-center mt-4 hidden"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="hidden">
+      <h2 class="text-2xl font-bold mb-4 text-center">Summary</h2>
+      <div class="bg-gray-800 bg-opacity-50 p-6 rounded-lg space-y-4 text-center">
+        <p class="text-lg text-gray-200">Net Gain or Loss</p>
+        <p id="gain-loss-value" class="text-4xl font-bold"></p>
+        <p id="gain-loss-status" class="text-lg font-semibold"></p>
+        <div class="flex justify-center my-6">
+          <canvas id="gain-loss-chart" class="w-full h-auto"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const salePriceInput = document.getElementById('salePrice');
+      const costBasisInput = document.getElementById('costBasis');
+      const transactionCostsInput = document.getElementById('transactionCosts');
+      const calculateBtn = document.getElementById('calculateBtn');
+      const usdBtn = document.getElementById('usdBtn');
+      const inrBtn = document.getElementById('inrBtn');
+      const gainLossValueDisplay = document.getElementById('gain-loss-value');
+      const gainLossStatusDisplay = document.getElementById('gain-loss-status');
+      const resultsSection = document.getElementById('results');
+      const errorMessage = document.getElementById('error-message');
+      const ctx = document.getElementById('gain-loss-chart').getContext('2d');
+
+      let currentCurrencySymbol = '$';
+      let gainLossChart = null;
+
+      function updateCurrencyButtonStyles() {
+        usdBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        usdBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+        inrBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        inrBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+
+        if (currentCurrencySymbol === '$') {
+          usdBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+          usdBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        } else {
+          inrBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+          inrBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        }
+      }
+
+      usdBtn.addEventListener('click', () => {
+        currentCurrencySymbol = '$';
+        updateCurrencyButtonStyles();
+        calculateGainLoss();
+      });
+
+      inrBtn.addEventListener('click', () => {
+        currentCurrencySymbol = '₹';
+        updateCurrencyButtonStyles();
+        calculateGainLoss();
+      });
+
+      function showMessage(message, element) {
+        element.textContent = message;
+        element.classList.remove('hidden');
+        setTimeout(() => {
+          element.classList.add('hidden');
+        }, 3000);
+      }
+
+      function drawPieChart(data, labels, colors) {
+        if (gainLossChart) {
+          gainLossChart.destroy();
+        }
+
+        gainLossChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: colors,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.5)'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  color: '#fff'
+                }
+              }
+            }
+          }
+        });
+      }
+
+      function calculateGainLoss() {
+        const salePrice = parseFloat(salePriceInput.value);
+        const costBasis = parseFloat(costBasisInput.value);
+        const transactionCosts = parseFloat(transactionCostsInput.value) || 0;
+
+        if (isNaN(salePrice) || isNaN(costBasis) || salePrice < 0 || costBasis < 0 || transactionCosts < 0) {
+          showMessage("Please enter valid non-negative numbers for all fields.", errorMessage);
+          resultsSection.classList.add('hidden');
+          return;
+        }
+
+        const netGainLoss = salePrice - (costBasis + transactionCosts);
+        let labels, data, colors;
+
+        if (netGainLoss >= 0) {
+          labels = ['Cost Basis', 'Transaction Costs', 'Capital Gain'];
+          data = [costBasis, transactionCosts, netGainLoss];
+          colors = ['rgba(52, 152, 219, 0.7)', 'rgba(155, 89, 182, 0.7)', 'rgba(46, 204, 113, 0.7)'];
+        } else {
+          labels = ['Cost Basis', 'Transaction Costs', 'Capital Loss'];
+          data = [costBasis, transactionCosts, Math.abs(netGainLoss)];
+          colors = ['rgba(52, 152, 219, 0.7)', 'rgba(155, 89, 182, 0.7)', 'rgba(231, 76, 60, 0.7)'];
+        }
+
+        if (salePrice === 0 && costBasis === 0 && transactionCosts === 0) {
+          resultsSection.classList.add('hidden');
+          return;
+        }
+
+        gainLossValueDisplay.textContent = `${currentCurrencySymbol}${netGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+        if (netGainLoss > 0) {
+          gainLossStatusDisplay.textContent = "Capital Gain";
+          gainLossStatusDisplay.classList.remove('text-red-400');
+          gainLossStatusDisplay.classList.add('text-green-400');
+          gainLossValueDisplay.classList.remove('text-red-400');
+          gainLossValueDisplay.classList.add('text-green-400');
+        } else if (netGainLoss < 0) {
+          gainLossStatusDisplay.textContent = "Capital Loss";
+          gainLossStatusDisplay.classList.remove('text-green-400');
+          gainLossStatusDisplay.classList.add('text-red-400');
+          gainLossValueDisplay.classList.remove('text-green-400');
+          gainLossValueDisplay.classList.add('text-red-400');
+        } else {
+          gainLossStatusDisplay.textContent = "Break-Even";
+          gainLossStatusDisplay.classList.remove('text-green-400', 'text-red-400');
+          gainLossValueDisplay.classList.remove('text-green-400', 'text-red-400');
+          gainLossValueDisplay.classList.add('text-white');
+        }
+
+        resultsSection.classList.remove('hidden');
+        drawPieChart(data, labels, colors);
+      }
+
+      calculateBtn.addEventListener('click', calculateGainLoss);
+
+      [salePriceInput, costBasisInput, transactionCostsInput].forEach(input => {
+        input.addEventListener('input', () => {
+          resultsSection.classList.add('hidden');
+          errorMessage.classList.add('hidden');
+        });
+      });
+
+      updateCurrencyButtonStyles();
+    });
+
+    // 3D Butterfly Logic
+    window.onload = function () {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // Create the butterfly group
+      const butterfly = new THREE.Group();
+
+      // Body (Cylinder)
+      const bodyGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1, 8);
+      const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      butterfly.add(body);
+
+      // Left Wings (Box)
+      const wingGeometry = new THREE.BoxGeometry(1.5, 1, 0.1);
+      const wingMaterial = new THREE.MeshLambertMaterial({ color: 0xffa500 });
+      const leftWing1 = new THREE.Mesh(wingGeometry, wingMaterial);
+      leftWing1.position.set(-0.75, 0.25, 0);
+      const leftWing2 = new THREE.Mesh(wingGeometry, wingMaterial);
+      leftWing2.position.set(-0.75, -0.25, 0);
+
+      const leftWingsGroup = new THREE.Group();
+      leftWingsGroup.add(leftWing1);
+      leftWingsGroup.add(leftWing2);
+      leftWingsGroup.position.x = -0.25;
+      leftWingsGroup.rotation.y = Math.PI / 2;
+      butterfly.add(leftWingsGroup);
+
+      // Right Wings (Box)
+      const rightWing1 = new THREE.Mesh(wingGeometry, wingMaterial);
+      rightWing1.position.set(0.75, 0.25, 0);
+      const rightWing2 = new THREE.Mesh(wingGeometry, wingMaterial);
+      rightWing2.position.set(0.75, -0.25, 0);
+
+      const rightWingsGroup = new THREE.Group();
+      rightWingsGroup.add(rightWing1);
+      rightWingsGroup.add(rightWing2);
+      rightWingsGroup.position.x = 0.25;
+      rightWingsGroup.rotation.y = -Math.PI / 2;
+      butterfly.add(rightWingsGroup);
+
+      // Position and scale the butterfly
+      butterfly.rotation.y = Math.PI / 2;
+      butterfly.position.set(0, 0, -20);
+      butterfly.scale.set(0.5, 0.5, 0.5);
+      scene.add(butterfly);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x404040, 5);
+      scene.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+
+      camera.position.z = 5;
+
+      // Animation loop
+      const animate = () => {
+        requestAnimationFrame(animate);
+
+        // Make the wings flap
+        const wingFlap = Math.sin(Date.now() * 0.005) * Math.PI / 6;
+        leftWingsGroup.rotation.y = Math.PI / 2 + wingFlap;
+        rightWingsGroup.rotation.y = -Math.PI / 2 - wingFlap;
+
+        // Make the butterfly fly
+        butterfly.position.z += 0.05;
+        if (butterfly.position.z > 5) {
+          butterfly.position.z = -20;
+          butterfly.position.x = (Math.random() - 0.5) * 10;
+          butterfly.position.y = (Math.random() - 0.5) * 10;
+        }
+
+        renderer.render(scene, camera);
+      };
+
+      // Handle window resizing
+      window.addEventListener('resize', () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      });
+
+      animate();
+    };
+  </script>
+</body>
+
+</html>

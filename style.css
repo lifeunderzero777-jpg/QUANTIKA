@@ -1,0 +1,89 @@
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f9fafb;
+}
+
+.section-title {
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 3rem;
+  height: 4px;
+  background-color: #3b82f6;
+  border-radius: 9999px;
+}
+
+/* Style for the video background */
+#video-bg {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+  background-size: cover;
+}
+
+/* Dark overlay for better text readability */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: -90;
+}
+
+/* 3D canvas for the butterfly */
+#three-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -95;
+  /* Behind the overlay, in front of the video */
+  display: block;
+}
+
+/* Custom styles for calculator buttons */
+.calc-button {
+  transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out,
+    box-shadow 0.1s ease-in-out;
+  user-select: none;
+}
+
+.calc-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.calc-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+  filter: brightness(0.85);
+}
+
+/* Style for the semi-transparent cards with gradient on hover */
+.calculator-card {
+  transition: all 0.3s ease-in-out;
+  transform: scale(1);
+}
+
+.calculator-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.calculator-card a {
+  display: block;
+}

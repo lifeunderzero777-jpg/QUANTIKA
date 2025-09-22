@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js CDN for 3D graphics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Video Background -->
+  <video autoplay muted loop id="video-bg">
+    <source src="video.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <!-- 3D Canvas -->
+  <canvas id="three-canvas"></canvas>
+  <!-- Dark Overlay -->
+  <div class="overlay"></div>
+
+  <!-- Main Container -->
+  <div class="min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full z-50 p-4 transition-all duration-300" style="background-color: #000000e0;">
+      <div class="container mx-auto flex items-center justify-between flex-wrap">
+        <!-- Logo -->
+        <a href="#" class="flex items-center flex-shrink-0 text-white mr-6">
+          <img src="relogo.png" alt="Quantika Logo" class="w-10 h-10 rounded-full border-2 border-gray-300">
+          <span class="font-extrabold text-xl ml-2 tracking-tight">Quantika</span>
+        </a>
+
+        <!-- Mobile menu button -->
+        <div class="block lg:hidden">
+          <button id="nav-toggle"
+            class="flex items-center px-3 py-2 border rounded text-gray-200 border-gray-400 hover:text-white hover:border-white">
+            <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <title>Menu</title>
+              <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v15z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Nav links -->
+        <div id="nav-content" class="w-full flex-grow lg:flex lg:items-center lg:w-auto hidden lg:block pt-6 lg:pt-0">
+          <div class="text-sm lg:flex-grow">
+            <!-- Links will appear here on larger screens -->
+          </div>
+          <div class="lg:flex lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
+            <a href="#loan-calculators" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Loan
+            </a>
+            <a href="#partnership-calculators"
+              class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Partnership
+            </a>
+            <a href="#investment-calculators"
+              class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Investment
+            </a>
+            <a href="#business-calculators"
+              class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Business
+            </a>
+            <a href="#tax-calculators" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Tax
+            </a>
+            <a href="#retirement-calculators"
+              class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Retirement
+            </a>
+            <a href="#lease-calculators" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4">
+              Lease
+            </a>
+            <a href="#insurance-calculators" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white">
+              Insurance
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content Grid -->
+    <main class="w-full max-w-7xl pt-24">
+      <div class="space-y-16">
+
+        <!-- Simple Calculator Section -->
+        <section class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <div class="flex flex-row justify-between items-center mb-6">
+            <h2 class="section-title text-2xl sm:text-3xl font-bold text-white">Simple Calculator</h2>
+            <a href="scientific_calculator.html"
+              class="calculator-card rounded-xl p-3 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold text-sm">Scientific Calculator</h3>
+            </a>
+          </div>
+          <div class="flex items-center justify-center p-4">
+            <!-- Calculator container -->
+            <div class="rounded-2xl shadow-2xl p-6 w-full max-w-sm" style="background-color: rgba(243, 244, 246, 0.1);">
+              <!-- Calculator display -->
+              <div class="mb-6">
+                <input type="text" id="display"
+                  class="w-full h-16 text-right text-4xl bg-gray-200 text-gray-900 rounded-xl px-4 font-light overflow-hidden border-2 border-gray-300 focus:outline-none"
+                  value="0" readonly>
+                <div id="error-message" class="text-red-500 text-sm mt-2 text-center hidden"></div>
+              </div>
+
+              <!-- Button grid -->
+              <div class="grid grid-cols-4 gap-4">
+                <!-- First row -->
+                <button
+                  class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl col-span-2 hover:bg-gray-400"
+                  data-type="clear">C</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="delete">DEL</button>
+                <button class="calc-button bg-blue-500 text-white text-xl p-4 rounded-xl hover:bg-blue-600"
+                  data-type="operator" data-value="/">&divide;</button>
+
+                <!-- Second row -->
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="7">7</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="8">8</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="9">9</button>
+                <button class="calc-button bg-blue-500 text-white text-xl p-4 rounded-xl hover:bg-blue-600"
+                  data-type="operator" data-value="*">&times;</button>
+
+                <!-- Third row -->
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="4">4</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="5">5</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="6">6</button>
+                <button class="calc-button bg-blue-500 text-white text-xl p-4 rounded-xl hover:bg-blue-600"
+                  data-type="operator" data-value="-">-</button>
+
+                <!-- Fourth row -->
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="1">1</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="2">2</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="number" data-value="3">3</button>
+                <button class="calc-button bg-blue-500 text-white text-xl p-4 rounded-xl hover:bg-blue-600"
+                  data-type="operator" data-value="+">+</button>
+
+                <!-- Fifth row -->
+                <button
+                  class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl col-span-2 hover:bg-gray-400"
+                  data-type="number" data-value="0">0</button>
+                <button class="calc-button bg-gray-300 text-gray-900 text-xl p-4 rounded-xl hover:bg-gray-400"
+                  data-type="decimal" data-value=".">.</button>
+                <button class="calc-button bg-blue-500 text-white text-xl p-4 rounded-xl hover:bg-blue-600"
+                  data-type="equals">=</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Loan Calculators Section -->
+        <section id="loan-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Loan Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="mortgage_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Mortgage Loan Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate monthly payments on mortgage loans.</p>
+            </a>
+            <a href="auto_loan_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Auto Loan Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate monthly payments for car loans.</p>
+            </a>
+            <a href="student_loan_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Student Loan Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine monthly payments for student loans.</p>
+            </a>
+            <a href="personal_loan_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Personal Loan Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate payments for personal loans.</p>
+            </a>
+            <a href="amortization_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Amortization Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Break down monthly payments into principal and interest.</p>
+            </a>
+            <a href="loan_comparison_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Loan Comparison Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Compare different loan offers side-by-side.</p>
+            </a>
+            <a href="refinance_loan_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600">
+              <h3 class="font-semibold">Refinance Loan Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Evaluate the benefits of refinancing a loan.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Partnership Calculators Section -->
+        <section id="partnership-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Partnership Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="partnership_profit_sharing_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-yellow-400 hover:to-orange-500">
+              <h3 class="font-semibold">Partnership Profit Sharing Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Distribute profits and losses among partners.</p>
+            </a>
+            <a href="capital_contribution_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-yellow-400 hover:to-orange-500">
+              <h3 class="font-semibold">Capital Contribution Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate each partner's contribution to the total capital.</p>
+            </a>
+            <a href="partnership_equity_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-yellow-400 hover:to-orange-500">
+              <h3 class="font-semibold">Partnership Equity Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine the ownership percentage of each partner.</p>
+            </a>
+            <a href="partnership_buyout_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-yellow-400 hover:to-orange-500">
+              <h3 class="font-semibold">Partnership Buyout Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate the buyout value of a partner's share.</p>
+            </a>
+            <a href="partnership_income_tax_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-yellow-400 hover:to-orange-500">
+              <h3 class="font-semibold">Partnership Income Tax Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate income tax implications for each partner.</p>
+            </a>
+            <a href="capital_gain_loss_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-yellow-400 hover:to-orange-500">
+              <h3 class="font-semibold">Capital Gain/Loss Calculator for Partnership</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate gains or losses from selling a partner's share.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Investment Calculators Section -->
+        <section id="investment-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Investment Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="roi_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-emerald-500 hover:to-teal-600">
+              <h3 class="font-semibold">Return on Investment (ROI) Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Measure the profitability of an investment.</p>
+            </a>
+            <a href="compound_interest_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-emerald-500 hover:to-teal-600">
+              <h3 class="font-semibold">Compound Interest Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate compound interest on an investment.</p>
+            </a>
+            <a href="future_value_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-emerald-500 hover:to-teal-600">
+              <h3 class="font-semibold">Future Value of Investment Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate the future value of an investment.</p>
+            </a>
+            <a href="capital_gains_tax_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-emerald-500 hover:to-teal-600">
+              <h3 class="font-semibold">Capital Gains Tax Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate tax liability from selling investments.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Business Calculators Section -->
+        <section id="business-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Business Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="breakeven_point_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-rose-500 hover:to-pink-600">
+              <h3 class="font-semibold">Break-even Point Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Find the point where total revenue equals total costs.</p>
+            </a>
+            <a href="profit_margin_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-rose-500 hover:to-pink-600">
+              <h3 class="font-semibold">Profit Margin Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine the percentage of profit on sales.</p>
+            </a>
+            <a href="cash_flow_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-rose-500 hover:to-pink-600">
+              <h3 class="font-semibold">Cash Flow Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate a company’s net cash flow.</p>
+            </a>
+            <a href="operating_expense_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-rose-500 hover:to-pink-600">
+              <h3 class="font-semibold">Operating Expense Ratio Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate the ratio of operating expenses to revenue.</p>
+            </a>
+            <a href="inventory_turnover_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-rose-500 hover:to-pink-600">
+              <h3 class="font-semibold">Inventory Turnover Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Measure how often inventory is sold or used.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Tax Calculators Section -->
+        <section id="tax-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Tax Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="income_tax_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-600">
+              <h3 class="font-semibold">Income Tax Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate income tax payable based on income.</p>
+            </a>
+            <a href="vat_sales_tax_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-600">
+              <h3 class="font-semibold">VAT/Sales Tax Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine VAT or sales tax on a product or service.</p>
+            </a>
+            <a href="capital_gains_tax_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-600">
+              <h3 class="font-semibold">Capital Gains Tax Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate tax liabilities from asset sales.</p>
+            </a>
+            <a href="self_employment_tax_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-600">
+              <h3 class="font-semibold">Self-Employment Tax Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate taxes owed by self-employed individuals.</p>
+            </a>
+            <a href="tax_withholding_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-violet-600">
+              <h3 class="font-semibold">Tax Withholding Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine correct amount of tax to be withheld.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Retirement Calculators Section -->
+        <section id="retirement-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Retirement Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="401k_retirement_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-green-500 hover:to-blue-600">
+              <h3 class="font-semibold">401(k) Retirement Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate the future value of your 401(k).</p>
+            </a>
+            <a href="ira_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-green-500 hover:to-blue-600">
+              <h3 class="font-semibold">IRA Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate the growth of an IRA over time.</p>
+            </a>
+            <a href="pension_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-green-500 hover:to-blue-600">
+              <h3 class="font-semibold">Pension Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate future pension payouts.</p>
+            </a>
+            <a href="social_security_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-green-500 hover:to-blue-600">
+              <h3 class="font-semibold">Social Security Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate your Social Security benefits.</p>
+            </a>
+            <a href="retirement_savings_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-green-500 hover:to-blue-600">
+              <h3 class="font-semibold">Retirement Savings Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine how much to save to reach your goal.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Lease Calculators Section -->
+        <section id="lease-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Lease Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="car_lease_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-teal-500 hover:to-cyan-600">
+              <h3 class="font-semibold">Car Lease Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Calculate monthly payments for a car lease.</p>
+            </a>
+            <a href="commercial_lease_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-teal-500 hover:to-cyan-600">
+              <h3 class="font-semibold">Commercial Lease Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine lease payments for commercial property.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Insurance Calculators Section -->
+        <section id="insurance-calculators"
+          class="p-6 sm:p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
+          style="background-color: rgba(255, 255, 255, 0.2);">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-white mb-6">Insurance Calculators</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <a href="life_insurance_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-fuchsia-500 hover:to-pink-600">
+              <h3 class="font-semibold">Life Insurance Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate the amount of life insurance coverage needed.</p>
+            </a>
+            <a href="health_insurance_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-fuchsia-500 hover:to-pink-600">
+              <h3 class="font-semibold">Health Insurance Premium Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate the monthly premium for health insurance.</p>
+            </a>
+            <a href="homeowners_insurance_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-fuchsia-500 hover:to-pink-600">
+              <h3 class="font-semibold">Homeowners Insurance Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Determine coverage needed for a homeowner's policy.</p>
+            </a>
+            <a href="auto_insurance_calculator.html"
+              class="calculator-card rounded-xl p-4 text-white transform hover:scale-105 transition-all duration-300 hover:bg-gradient-to-br hover:from-fuchsia-500 hover:to-pink-600">
+              <h3 class="font-semibold">Auto Insurance Premium Calculator</h3>
+              <p class="text-gray-200 text-sm mt-1">Estimate the cost of auto insurance premiums.</p>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-6 mt-12 text-center text-white" style="background-color: #000000e0;">
+    <p>&copy; 2023 Quantika. All Rights Reserved.</p>
+    Video by <a
+      href="https://pixabay.com/users/motionstock-13298494/?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=27726">motionstock</a>
+    from <a
+      href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=27726">Pixabay</a>
+
+  </footer>
+
+</body>
+
+</html>

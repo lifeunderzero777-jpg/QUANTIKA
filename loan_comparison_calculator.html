@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Comparison Calculator - Quantika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js CDN for 3D graphics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+    }
+
+    .container-card {
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .input-field {
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Style for the video background */
+    #video-bg {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -100;
+      background-size: cover;
+    }
+
+    /* Dark overlay for better text readability */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -90;
+    }
+
+    /* 3D canvas for the butterfly */
+    #three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -95;
+      /* Behind the overlay, in front of the video */
+      display: block;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <!-- Video Background -->
+  <video autoplay muted loop id="video-bg">
+    <source src="video.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <!-- 3D Canvas -->
+  <canvas id="three-canvas"></canvas>
+  <!-- Dark overlay for better text readability -->
+  <div class="fixed inset-0 bg-black bg-opacity-70 z-0"></div>
+
+  <!-- Main content container -->
+  <div class="container-card w-full max-w-6xl mx-auto rounded-3xl shadow-2xl p-6 sm:p-10 relative z-10 text-white">
+
+    <!-- Header with logo and back button -->
+    <div class="flex items-center justify-between mb-8">
+      <a href="index.html" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300">
+        <img src="relogo.png" alt="Quantika Logo" class="w-8 h-8 rounded-full border border-gray-300">
+        <span class="font-bold text-xl ml-2">Quantika</span>
+      </a>
+      <a href="index.html" class="text-white hover:underline">
+        &larr; Back to Calculators
+      </a>
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">Loan Comparison Calculator</h1>
+    <p class="text-center text-gray-200 mb-8">Compare different loan offers side-by-side.</p>
+
+    <!-- Calculator Inputs -->
+    <div class="space-y-8 mb-8">
+      <div id="currency-buttons" class="flex justify-center space-x-4 mb-4">
+        <button id="usdBtn"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors duration-300">
+          $ (USD)
+        </button>
+        <button id="inrBtn"
+          class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors duration-300">
+          ₹ (INR)
+        </button>
+      </div>
+
+      <!-- Loan inputs container -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Loan 1 -->
+        <div class="bg-gray-800 bg-opacity-50 p-6 rounded-lg shadow-lg">
+          <h3 class="text-xl font-bold mb-4">Loan Offer 1</h3>
+          <div class="space-y-4">
+            <div>
+              <label for="loanAmount1" class="block text-sm font-medium text-gray-200 mb-1">Loan Amount</label>
+              <input type="number" id="loanAmount1" value="200000"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+            <div>
+              <label for="interestRate1" class="block text-sm font-medium text-gray-200 mb-1">Annual Interest Rate
+                (%)</label>
+              <input type="number" id="interestRate1" value="4.5"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+            <div>
+              <label for="loanTerm1" class="block text-sm font-medium text-gray-200 mb-1">Loan Term (Years)</label>
+              <input type="number" id="loanTerm1" value="30"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan 2 -->
+        <div class="bg-gray-800 bg-opacity-50 p-6 rounded-lg shadow-lg">
+          <h3 class="text-xl font-bold mb-4">Loan Offer 2</h3>
+          <div class="space-y-4">
+            <div>
+              <label for="loanAmount2" class="block text-sm font-medium text-gray-200 mb-1">Loan Amount</label>
+              <input type="number" id="loanAmount2" value="200000"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+            <div>
+              <label for="interestRate2" class="block text-sm font-medium text-gray-200 mb-1">Annual Interest Rate
+                (%)</label>
+              <input type="number" id="interestRate2" value="4.0"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+            <div>
+              <label for="loanTerm2" class="block text-sm font-medium text-gray-200 mb-1">Loan Term (Years)</label>
+              <input type="number" id="loanTerm2" value="25"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan 3 -->
+        <div class="bg-gray-800 bg-opacity-50 p-6 rounded-lg shadow-lg">
+          <h3 class="text-xl font-bold mb-4">Loan Offer 3</h3>
+          <div class="space-y-4">
+            <div>
+              <label for="loanAmount3" class="block text-sm font-medium text-gray-200 mb-1">Loan Amount</label>
+              <input type="number" id="loanAmount3" value="200000"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+            <div>
+              <label for="interestRate3" class="block text-sm font-medium text-gray-200 mb-1">Annual Interest Rate
+                (%)</label>
+              <input type="number" id="interestRate3" value="5.0"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+            <div>
+              <label for="loanTerm3" class="block text-sm font-medium text-gray-200 mb-1">Loan Term (Years)</label>
+              <input type="number" id="loanTerm3" value="20"
+                class="w-full rounded-lg input-field p-3 text-gray-900 focus:outline-none transition-colors duration-200">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="calculateBtn"
+        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg transition-colors duration-300">
+        Compare Loans
+      </button>
+      <div id="error-message" class="text-red-400 text-center mt-4 hidden"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="hidden">
+      <h2 class="text-2xl font-bold mb-4 text-center">Comparison Results</h2>
+      <div class="bg-gray-800 bg-opacity-50 p-6 rounded-lg space-y-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <!-- Loan 1 Results -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Loan 1</h3>
+          <div class="bg-gray-700 bg-opacity-50 p-4 rounded-lg space-y-2">
+            <p class="text-gray-300">Monthly Payment:</p>
+            <p id="monthlyPayment1" class="font-bold text-xl"></p>
+            <p class="text-gray-300">Total Interest:</p>
+            <p id="totalInterest1" class="font-bold text-xl"></p>
+            <p class="text-gray-300">Total Cost:</p>
+            <p id="totalCost1" class="font-bold text-xl"></p>
+          </div>
+        </div>
+        <!-- Loan 2 Results -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Loan 2</h3>
+          <div class="bg-gray-700 bg-opacity-50 p-4 rounded-lg space-y-2">
+            <p class="text-gray-300">Monthly Payment:</p>
+            <p id="monthlyPayment2" class="font-bold text-xl"></p>
+            <p class="text-gray-300">Total Interest:</p>
+            <p id="totalInterest2" class="font-bold text-xl"></p>
+            <p class="text-gray-300">Total Cost:</p>
+            <p id="totalCost2" class="font-bold text-xl"></p>
+          </div>
+        </div>
+        <!-- Loan 3 Results -->
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Loan 3</h3>
+          <div class="bg-gray-700 bg-opacity-50 p-4 rounded-lg space-y-2">
+            <p class="text-gray-300">Monthly Payment:</p>
+            <p id="monthlyPayment3" class="font-bold text-xl"></p>
+            <p class="text-gray-300">Total Interest:</p>
+            <p id="totalInterest3" class="font-bold text-xl"></p>
+            <p class="text-gray-300">Total Cost:</p>
+            <p id="totalCost3" class="font-bold text-xl"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const calculateBtn = document.getElementById('calculateBtn');
+      const usdBtn = document.getElementById('usdBtn');
+      const inrBtn = document.getElementById('inrBtn');
+      const errorMessage = document.getElementById('error-message');
+
+      let currentCurrencySymbol = '$';
+
+      function updateCurrencyButtonStyles() {
+        usdBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        usdBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+        inrBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        inrBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+
+        if (currentCurrencySymbol === '$') {
+          usdBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+          usdBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        } else {
+          inrBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+          inrBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        }
+      }
+
+      usdBtn.addEventListener('click', () => {
+        currentCurrencySymbol = '$';
+        updateCurrencyButtonStyles();
+        compareLoans();
+      });
+
+      inrBtn.addEventListener('click', () => {
+        currentCurrencySymbol = '₹';
+        updateCurrencyButtonStyles();
+        compareLoans();
+      });
+
+      calculateBtn.addEventListener('click', compareLoans);
+
+      function showMessage(message, element) {
+        element.textContent = message;
+        element.classList.remove('hidden');
+        setTimeout(() => {
+          element.classList.add('hidden');
+        }, 3000);
+      }
+
+      function calculateLoan(loanAmount, annualInterestRate, loanTerm) {
+        if (isNaN(loanAmount) || isNaN(annualInterestRate) || isNaN(loanTerm) || loanAmount <= 0 || annualInterestRate < 0 || loanTerm <= 0) {
+          return null;
+        }
+
+        const monthlyInterestRate = (annualInterestRate / 100) / 12;
+        const numberOfPayments = loanTerm * 12;
+
+        let monthlyPayment = 0;
+        if (monthlyInterestRate === 0) {
+          monthlyPayment = loanAmount / numberOfPayments;
+        } else {
+          monthlyPayment = loanAmount * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+        }
+
+        const totalInterest = (monthlyPayment * numberOfPayments) - loanAmount;
+        const totalCost = loanAmount + totalInterest;
+
+        return {
+          monthlyPayment: monthlyPayment.toFixed(2),
+          totalInterest: totalInterest.toFixed(2),
+          totalCost: totalCost.toFixed(2)
+        };
+      }
+
+      function compareLoans() {
+        const loan1Amount = parseFloat(document.getElementById('loanAmount1').value);
+        const loan1Rate = parseFloat(document.getElementById('interestRate1').value);
+        const loan1Term = parseFloat(document.getElementById('loanTerm1').value);
+
+        const loan2Amount = parseFloat(document.getElementById('loanAmount2').value);
+        const loan2Rate = parseFloat(document.getElementById('interestRate2').value);
+        const loan2Term = parseFloat(document.getElementById('loanTerm2').value);
+
+        const loan3Amount = parseFloat(document.getElementById('loanAmount3').value);
+        const loan3Rate = parseFloat(document.getElementById('interestRate3').value);
+        const loan3Term = parseFloat(document.getElementById('loanTerm3').value);
+
+        const result1 = calculateLoan(loan1Amount, loan1Rate, loan1Term);
+        const result2 = calculateLoan(loan2Amount, loan2Rate, loan2Term);
+        const result3 = calculateLoan(loan3Amount, loan3Rate, loan3Term);
+
+        if (!result1 || !result2 || !result3) {
+          showMessage("Please enter valid numbers for all fields for all loans.", errorMessage);
+          document.getElementById('results').classList.add('hidden');
+          return;
+        }
+
+        document.getElementById('monthlyPayment1').textContent = `${currentCurrencySymbol}${result1.monthlyPayment}`;
+        document.getElementById('totalInterest1').textContent = `${currentCurrencySymbol}${result1.totalInterest}`;
+        document.getElementById('totalCost1').textContent = `${currentCurrencySymbol}${result1.totalCost}`;
+
+        document.getElementById('monthlyPayment2').textContent = `${currentCurrencySymbol}${result2.monthlyPayment}`;
+        document.getElementById('totalInterest2').textContent = `${currentCurrencySymbol}${result2.totalInterest}`;
+        document.getElementById('totalCost2').textContent = `${currentCurrencySymbol}${result2.totalCost}`;
+
+        document.getElementById('monthlyPayment3').textContent = `${currentCurrencySymbol}${result3.monthlyPayment}`;
+        document.getElementById('totalInterest3').textContent = `${currentCurrencySymbol}${result3.totalInterest}`;
+        document.getElementById('totalCost3').textContent = `${currentCurrencySymbol}${result3.totalCost}`;
+
+        document.getElementById('results').classList.remove('hidden');
+      }
+
+      updateCurrencyButtonStyles();
+      compareLoans();
+    });
+
+    // 3D Butterfly Logic
+    window.onload = function () {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // Create the butterfly group
+      const butterfly = new THREE.Group();
+
+      // Body (Cylinder)
+      const bodyGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1, 8);
+      const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      butterfly.add(body);
+
+      // Left Wings (Box)
+      const wingGeometry = new THREE.BoxGeometry(1.5, 1, 0.1);
+      const wingMaterial = new THREE.MeshLambertMaterial({ color: 0xffa500 });
+      const leftWing1 = new THREE.Mesh(wingGeometry, wingMaterial);
+      leftWing1.position.set(-0.75, 0.25, 0);
+      const leftWing2 = new THREE.Mesh(wingGeometry, wingMaterial);
+      leftWing2.position.set(-0.75, -0.25, 0);
+
+      const leftWingsGroup = new THREE.Group();
+      leftWingsGroup.add(leftWing1);
+      leftWingsGroup.add(leftWing2);
+      leftWingsGroup.position.x = -0.25;
+      leftWingsGroup.rotation.y = Math.PI / 2;
+      butterfly.add(leftWingsGroup);
+
+      // Right Wings (Box)
+      const rightWing1 = new THREE.Mesh(wingGeometry, wingMaterial);
+      rightWing1.position.set(0.75, 0.25, 0);
+      const rightWing2 = new THREE.Mesh(wingGeometry, wingMaterial);
+      rightWing2.position.set(0.75, -0.25, 0);
+
+      const rightWingsGroup = new THREE.Group();
+      rightWingsGroup.add(rightWing1);
+      rightWingsGroup.add(rightWing2);
+      rightWingsGroup.position.x = 0.25;
+      rightWingsGroup.rotation.y = -Math.PI / 2;
+      butterfly.add(rightWingsGroup);
+
+      // Position and scale the butterfly
+      butterfly.rotation.y = Math.PI / 2;
+      butterfly.position.set(0, 0, -20);
+      butterfly.scale.set(0.5, 0.5, 0.5);
+      scene.add(butterfly);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x404040, 5);
+      scene.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+
+      camera.position.z = 5;
+
+      // Animation loop
+      const animate = () => {
+        requestAnimationFrame(animate);
+
+        // Make the wings flap
+        const wingFlap = Math.sin(Date.now() * 0.005) * Math.PI / 6;
+        leftWingsGroup.rotation.y = Math.PI / 2 + wingFlap;
+        rightWingsGroup.rotation.y = -Math.PI / 2 - wingFlap;
+
+        // Make the butterfly fly
+        butterfly.position.z += 0.05;
+        if (butterfly.position.z > 5) {
+          butterfly.position.z = -20;
+          butterfly.position.x = (Math.random() - 0.5) * 10;
+          butterfly.position.y = (Math.random() - 0.5) * 10;
+        }
+
+        renderer.render(scene, camera);
+      };
+
+      // Handle window resizing
+      window.addEventListener('resize', () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      });
+
+      animate();
+    };
+  </script>
+</body>
+
+</html>
